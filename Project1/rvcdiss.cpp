@@ -8,6 +8,10 @@ using namespace std;
 
 unsigned int pc = 0x0;
 char memory[8*1024];	// only 8KB of memory located at address 0
+void printInst(string inst, string rd, string rs1, string rs2)
+{
+	cout << inst << ' ' << rd << ", " << rs1 << ", " << rs2 << '\n';
+}
 
 string getABI(unsigned int r)
 {
@@ -58,14 +62,30 @@ void instDecExec(unsigned int instWord)
 	string rs1ABI = getABI(rs1);
 	string rs2ABI = getABI(rs2);
 
-	if(opcode == 0x33)	// R Instructions
+	if (opcode == 0x33)	// R Instructions
 		switch (funct3)
 		{
 		case 0:
-			if(funct7 == 32) cout << "\tSUB\tx" << rdABI << ", x" << rs1ABI << ", x" << rs2ABI << "\n";
-			else cout << "\tADD\tx" << rdABI << ", x" << rs1ABI << ", x" << rs2ABI << "\n";
+			if (!funct7) printInst("ADD", rdABI, rs1ABI, rs2ABI);
+			else printInst("SUB", rdABI, rs1ABI, rs2ABI);
 			break;
-		default: cout << "\tUnknown R Instruction \n";
+		case 4: printInst("XOR", rdABI, rs1ABI, rs2ABI);
+			break;
+		case 6: printInst("OR", rdABI, rs1ABI, rs2ABI);
+			break;
+		case 7: printInst("AND", rdABI, rs1ABI, rs2ABI);
+			break;
+		case 1: printInst("SLL", rdABI, rs1ABI, rs2ABI);
+			break;
+		case 5:
+			if (!funct7) printInst("SRL", rdABI, rs1ABI, rs2ABI);
+			else printInst("SRA", rdABI, rs1ABI, rs2ABI);
+			break;
+		case 2: printInst("SLT", rdABI, rs1ABI, rs2ABI);
+			break;
+		case 3: printInst("SLTU", rdABI, rs1ABI, rs2ABI);
+			break;
+		default: cout << "\tUnknown R Instruction!\n";
 		}
 	else if (opcode == 0x13)	// I instructions
 		switch(funct3)
