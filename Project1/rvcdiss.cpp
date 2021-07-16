@@ -13,6 +13,11 @@ void printInst(string inst, string rd, string rs1, string rs2)
 	cout << inst << ' ' << rd << ", " << rs1 << ", " << rs2 << '\n';
 }
 
+void printInst(string inst, string rd, string rs1, unsigned int imm)
+{
+	cout << rd << ", " << rs1 << ", " << hex << "0x" << (int)imm << '\n' << dec;
+}
+
 string getABI(unsigned int r)
 {
 	if (!r) return "zero";
@@ -88,11 +93,27 @@ void instDecExec(unsigned int instWord)
 		default: cout << "\tUnknown R Instruction!\n";
 		}
 	else if (opcode == 0x13)	// I instructions
-		switch(funct3)
+		switch (funct3)
 		{
-		case 0:	cout << "\tADDI\tx" << rdABI << ", x" << rs1ABI << ", " << hex << "0x" << (int)I_imm << "\n" << dec;
+		case 0: printInst("ADDI", rdABI, rs1ABI, I_imm);
 			break;
-		default: cout << "\tUnknown I Instruction \n";
+		case 4: printInst("XORI", rdABI, rs1ABI, I_imm);
+			break;
+		case 6: printInst("ORI", rdABI, rs1ABI, I_imm);
+			break;
+		case 7: printInst("ANDI", rdABI, rs1ABI, I_imm);
+			break;
+		case 1: printInst("SLLI", rdABI, rs1ABI, I_imm);
+			break;
+		case 5:
+			if (!funct7) printInst("SRLI", rdABI, rs1ABI, rs2);
+			else printInst("SRAI", rdABI, rs1ABI, rs2);
+			break;
+		case 2: printInst("SLTI", rdABI, rs1ABI, I_imm);
+			break;
+		case 3: printInst("SLTIU", rdABI, rs1ABI, I_imm);
+			break;
+		default: cout << "\tUnknown I Instruction!\n";
 		}
 	else
 		cout << "\tUnknown Instruction \n";
