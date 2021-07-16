@@ -13,9 +13,15 @@ void printInst(string inst, string rd, string rs1, string rs2)
 	cout << inst << ' ' << rd << ", " << rs1 << ", " << rs2 << '\n';
 }
 
-void printInst(string inst, string rd, string rs1, unsigned int imm)
+void printInst(string inst, string rd, string rs1, unsigned int imm, bool address = false, bool memo = false)
 {
-	cout << rd << ", " << rs1 << ", " << hex << "0x" << (int)imm << '\n' << dec;
+	cout << inst << ' ' << rd << ", ";
+	if (!memo && rs1 != "") cout << rs1 << ", ";
+	if (address) cout << hex << "0x";
+	cout << (int)imm;
+	if (address) cout << dec;
+	if (memo) cout << '(' << rs1 << ')';
+	cout << '\n';
 }
 
 string getABI(unsigned int r)
@@ -115,8 +121,73 @@ void instDecExec(unsigned int instWord)
 			break;
 		default: cout << "\tUnknown I Instruction!\n";
 		}
+	else if (opcode == 0x03) // I instructions for loading
+		switch (funct3)
+		{
+		case 0: printInst("LB", rdABI, rs1ABI, I_imm, 0, true);
+			break;
+		case 1: printInst("LH", rdABI, rs1ABI, I_imm, 0, true);
+			break;
+		case 2: printInst("LW", rdABI, rs1ABI, I_imm, 0, true);
+			break;
+		case 4: printInst("LBU", rdABI, rs1ABI, I_imm, 0, true);
+			break;
+		case 5: printInst("LHU", rdABI, rs1ABI, I_imm, 0, true);
+			break;
+		default: cout << "\tUnknown I Instruction for loading!\n";
+		}
+	else if (opcode == 0x23) // S instructions
+		switch (funct3)
+		{
+		case 0: printInst("SB", rs2ABI, rs1ABI, S_imm, 0, true);
+			break;
+		case 1: printInst("SH", rs2ABI, rs1ABI, S_imm, 0, true);
+			break;
+		case 2: printInst("SW", rs2ABI, rs1ABI, S_imm, 0, true);
+			break;
+		default: cout << "\tUnknown S Instruction!\n";
+		}
+	else if (opcode == 0x63) // B instructions
+		switch (funct3)
+		{
+		case 0: printInst("BEQ", rs1ABI, rs2ABI, B_imm, true);
+			break;
+		case 1: printInst("BNE", rs1ABI, rs2ABI, B_imm, true);
+			break;
+		case 4: printInst("BLT", rs1ABI, rs2ABI, B_imm, true);
+			break;
+		case 5: printInst("BGE", rs1ABI, rs2ABI, B_imm, true);
+			break;
+		case 6: printInst("BLTU", rs1ABI, rs2ABI, B_imm, true);
+			break;
+		case 7: printInst("BGEU", rs1ABI, rs2ABI, B_imm, true);
+			break;
+		default: cout << "\tUnknown B Instruction!\n";
+		}
+	else if (opcode == 0x6F) // J instructions
+		printInst("JAL", rdABI, "", J_imm, true);
+	else if (opcode == 0x67) // I instructions for jumping
+		switch (funct3)
+		{
+		case 0: printInst("JALR", rdABI, rs1ABI, I_imm);
+			break;
+		default: cout << "\tUnknown I Instruction for jumping!\n";
+		}
+	else if (opcode == 0x37) // LUI instruction
+		printInst("LUI", rdABI, "", U_imm);
+	else if (opcode == 0x17) // AUIPC instructiion
+		printInst("AUIPC", rdABI, "", U_imm);
+	else if (opcode == 0x73) // I environment call instruction
+		switch (funct3)
+		{
+		case 0:
+			if (!I_imm) cout << "ECALL\n";
+			else cout << "EBREAK\n";
+			break;
+		default: cout << "\tUnknown I Instruction for Environment Call!\n";
+		}
 	else
-		cout << "\tUnknown Instruction \n";
+		cout << "Unknown Instruction \n";
 }
 
 int main(int argc, char* argv[])
