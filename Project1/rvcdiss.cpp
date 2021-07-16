@@ -12,6 +12,7 @@ char memory[8*1024];	// only 8KB of memory located at address 0
 void emitError(string s)
 {
 	cout << s << endl;
+	system("pause");
 	exit(0);
 }
 
@@ -96,6 +97,6 @@ int main(int argc, char* argv[])
 	}
 	else
 		emitError("Cannot access input file\n");
-
+	system("pause");
 	return 0;
 }
