@@ -9,6 +9,21 @@ using namespace std;
 unsigned int pc = 0x0;
 char memory[8*1024];	// only 8KB of memory located at address 0
 
+string getABI(unsigned int r)
+{
+	if (!r) return "zero";
+	if (r == 1) return "ra";
+	if (r == 2) return "sp";
+	if (r == 3) return "gp";
+	if (r == 4) return "tp";
+	if (r >= 5 && r <= 7) return "t" + to_string(r - 5);
+	if (r == 8 || r == 9) return "s" + to_string(r - 8);
+	if (r >= 10 && r <= 17) return "a" + to_string(r - 10);
+	if (r >= 18 && r <= 27) return "s" + to_string(r - 16);
+	if (r >= 28 && r <= 31) return "s" + to_string(r - 25);
+	return "x" + to_string(r);
+}
+
 void emitError(string s)
 {
 	cout << s << endl;
@@ -39,24 +54,28 @@ void instDecExec(unsigned int instWord)
 
 	cout << "0x" << hex << setfill('0') << setw(8) << instPC << "\t0x" << setw(8) << instWord << '\t' << dec;
 
+	string rdABI = getABI(rd);
+	string rs1ABI = getABI(rs1);
+	string rs2ABI = getABI(rs2);
+
 	if(opcode == 0x33)	// R Instructions
 		switch (funct3)
 		{
 		case 0:
-			if(funct7 == 32) cout << "\tSUB\tx" << rd << ", x" << rs1 << ", x" << rs2 << "\n";
-			else cout << "\tADD\tx" << rd << ", x" << rs1 << ", x" << rs2 << "\n";
+			if(funct7 == 32) cout << "\tSUB\tx" << rdABI << ", x" << rs1ABI << ", x" << rs2ABI << "\n";
+			else cout << "\tADD\tx" << rdABI << ", x" << rs1ABI << ", x" << rs2ABI << "\n";
 			break;
-		default: cout << "\tUnkown R Instruction \n";
+		default: cout << "\tUnknown R Instruction \n";
 		}
 	else if (opcode == 0x13)	// I instructions
 		switch(funct3)
 		{
-		case 0:	cout << "\tADDI\tx" << rd << ", x" << rs1 << ", " << hex << "0x" << (int)I_imm << "\n";
+		case 0:	cout << "\tADDI\tx" << rdABI << ", x" << rs1ABI << ", " << hex << "0x" << (int)I_imm << "\n" << dec;
 			break;
-		default: cout << "\tUnkown I Instruction \n";
+		default: cout << "\tUnknown I Instruction \n";
 		}
 	else
-		cout << "\tUnkown Instruction \n";
+		cout << "\tUnknown Instruction \n";
 }
 
 int main(int argc, char* argv[])
