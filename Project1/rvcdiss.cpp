@@ -16,11 +16,6 @@ void emitError(string s)
 	exit(0);
 }
 
-void printPrefix(unsigned int instA, unsigned int instW)
-{
-	cout << "0x" << hex << std::setfill('0') << std::setw(8) << instA << "\t0x" << std::setw(8) << instW << '\n';
-}
-
 void instDecExec(unsigned int instWord)
 {
 	unsigned int
@@ -42,7 +37,7 @@ void instDecExec(unsigned int instWord)
 	unsigned int address;
 	unsigned int instPC = pc - 4;
 
-	printPrefix(instPC, instWord);
+	cout << "0x" << hex << setfill('0') << setw(8) << instPC << "\t0x" << setw(8) << instWord << '\t' << dec;
 
 	if(opcode == 0x33)	// R Instructions
 		switch (funct3)
