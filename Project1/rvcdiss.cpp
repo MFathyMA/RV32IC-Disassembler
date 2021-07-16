@@ -53,10 +53,10 @@ void instDecExec(unsigned int instWord)
 	// â€” inst[31] â€” inst[30:25] inst[24:21] inst[20]
 	unsigned int 
 		I_imm = ((instWord >> 20) & 0x7FF) | (((instWord >> 31) ? 0xFFFFF800 : 0x0)),
-		S_imm,
-		B_imm,
-		U_imm,
-		J_imm;
+		S_imm = ((instWord >> 7) & 0x1F) | ((instWord >> 20) & 0x7E0) | ((instWord >> 31) ? 0xFFFFF800 : 0x0),
+		B_imm = ((instWord >> 7) & 0x1E) | ((instWord >> 20) & 0x7E0) | ((instWord << 4) & 0x800) | ((instWord >> 31) ? 0xFFFFF000 : 0x0),
+		U_imm = (instWord & 0xFFFFF000),
+		J_imm = ((instWord >> 20) & 0x7FE) | ((instWord >> 9) & 0x800) | (instWord & 0xFF000) | ((instWord >> 31) ? 0xFFF00000 : 0x0);
 
 	unsigned int address;
 	unsigned int instPC = pc - 4;
