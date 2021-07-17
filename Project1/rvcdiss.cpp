@@ -1,3 +1,5 @@
+#define labelsSize 100
+
 #include <iomanip>
 #include <iostream>
 #include <fstream>
@@ -8,6 +10,24 @@ using namespace std;
 
 unsigned int pc = 0x0;
 char memory[8*1024];	// only 8KB of memory located at address 0
+
+void printLabel(unsigned int imm)
+{
+	static unsigned int label[labelsSize] = { 0 };
+	int i;
+	for (i =0; i < labelsSize; i++)
+	{
+		if (!label[i])
+		{
+			label[i] = imm;
+			break;
+		}
+		if (imm == label[i])
+			break;
+	}
+	cout << " <label" << dec << i << '>';
+}
+
 void printInst(string inst, string rd, string rs1, string rs2)
 {
 	cout << inst << ' ' << rd << ", " << rs1 << ", " << rs2 << '\n';
@@ -19,7 +39,7 @@ void printInst(string inst, string rd, string rs1, unsigned int imm, bool addres
 	if (!memo && rs1 != "") cout << rs1 << ", ";
 	if (address) cout << hex << "0x";
 	cout << (int)imm;
-	if (address) cout << dec;
+	if (address) printLabel(imm);
 	if (memo) cout << '(' << rs1 << ')';
 	cout << '\n';
 }
